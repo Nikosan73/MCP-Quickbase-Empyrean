@@ -1,4 +1,4 @@
-﻿import { BaseTool } from "../base";
+import { BaseTool } from "../base";
 import { QuickbaseClient } from "../../client/quickbase";
 import { createLogger } from "../../utils/logger";
 
@@ -47,7 +47,7 @@ export interface BulkUpdateRecordsResult {
 /**
  * Tool for updating multiple records in a Quickbase table
  */
-export class BulkUpdateRecordsTool extends BaseTool
+export class BulkUpdateRecordsTool extends BaseTool<
   BulkUpdateRecordsParams,
   BulkUpdateRecordsResult
 > {
