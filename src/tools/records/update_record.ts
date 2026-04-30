@@ -1,4 +1,4 @@
-import { BaseTool } from "../base";
+﻿import { BaseTool } from "../base";
 import { QuickbaseClient } from "../../client/quickbase";
 import { createLogger } from "../../utils/logger";
 
@@ -53,7 +53,7 @@ export interface UpdateRecordResult {
 /**
  * Tool for updating an existing record in a Quickbase table
  */
-export class UpdateRecordTool extends BaseTool<
+export class UpdateRecordTool extends BaseTool
   UpdateRecordParams,
   UpdateRecordResult
 > {
@@ -117,15 +117,17 @@ export class UpdateRecordTool extends BaseTool<
       recordData[field] = { value };
     }
 
+    // Per Quickbase upsert API: the record ID must be passed as field 3
+    // (the default key field) using the same { value: X } wrapper as any
+    // other field. The previous "id: record_id" form is not accepted by
+    // the /records endpoint and produces HTTP 400 Bad Request.
+    // See https://developer.quickbase.com/operation/upsert
+    recordData["3"] = { value: parseInt(record_id, 10) };
+
     // Prepare request body
     const body: Record<string, any> = {
       to: table_id,
-      data: [
-        {
-          id: record_id,
-          ...recordData,
-        },
-      ],
+      data: [recordData],
     };
 
     // Update the record

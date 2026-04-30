@@ -1,4 +1,4 @@
-import { BaseTool } from "../base";
+﻿import { BaseTool } from "../base";
 import { QuickbaseClient } from "../../client/quickbase";
 import { createLogger } from "../../utils/logger";
 
@@ -47,7 +47,7 @@ export interface BulkUpdateRecordsResult {
 /**
  * Tool for updating multiple records in a Quickbase table
  */
-export class BulkUpdateRecordsTool extends BaseTool<
+export class BulkUpdateRecordsTool extends BaseTool
   BulkUpdateRecordsParams,
   BulkUpdateRecordsResult
 > {
@@ -113,9 +113,16 @@ export class BulkUpdateRecordsTool extends BaseTool<
     }
 
     // Prepare record data
+    // Per Quickbase upsert API: the record ID must be passed as field 3
+    // (the default key field) using the { value: X } wrapper, NOT as a
+    // bare "id" property. The previous form was rejected by /records
+    // with HTTP 400 Bad Request.
+    // See https://developer.quickbase.com/operation/upsert
     const formattedRecords = records.map((record) => {
       const { id, ...fields } = record;
-      const recordData: Record<string, any> = { id };
+      const recordData: Record<string, { value: any }> = {
+        "3": { value: typeof id === "string" ? parseInt(id, 10) : id },
+      };
 
       for (const [field, value] of Object.entries(fields)) {
         recordData[field] = { value };
